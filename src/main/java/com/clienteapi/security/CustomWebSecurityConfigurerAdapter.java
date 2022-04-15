@@ -1,9 +1,9 @@
-package com.clienteapi.config;
+package com.clienteapi.security;
 
+import com.clienteapi.security.user.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
@@ -17,11 +17,18 @@ import org.springframework.security.web.authentication.www.BasicAuthenticationFi
 @EnableWebSecurity
 public class CustomWebSecurityConfigurerAdapter extends WebSecurityConfigurerAdapter {
 
+//    @Autowired
+//    public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
+//        auth.inMemoryAuthentication()
+//                .withUser("user1").password(passwordEncoder().encode("user1Pass"))
+//                .authorities("ROLE_USER");
+//    }
+
+    private final UserRepository userRepository;
+
     @Autowired
-    public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
-        auth.inMemoryAuthentication()
-                .withUser("user1").password(passwordEncoder().encode("user1Pass"))
-                .authorities("ROLE_USER");
+    public CustomWebSecurityConfigurerAdapter(UserRepository userRepository) {
+        this.userRepository = userRepository;
     }
 
     @Bean
@@ -43,7 +50,7 @@ public class CustomWebSecurityConfigurerAdapter extends WebSecurityConfigurerAda
                 .sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
-                .addFilterBefore(new AuthenticationFilter(), BasicAuthenticationFilter.class);
+                .addFilterBefore(new AuthenticationFilter(userRepository), BasicAuthenticationFilter.class);
     }
 
     @Bean

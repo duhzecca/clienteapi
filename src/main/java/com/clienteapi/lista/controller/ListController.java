@@ -7,6 +7,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.concurrent.ExecutionException;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/listas")
@@ -15,7 +17,7 @@ public class ListController {
     private final ListaService listaService;
 
     @GetMapping("/{idLista}/")
-    public ResponseEntity<ListaDTO> getList(@PathVariable("idLista") Integer idLista) throws BadRequestException {
+    public ResponseEntity<ListaDTO> getList(@PathVariable("idLista") Integer idLista) throws BadRequestException, ExecutionException, InterruptedException {
         return ResponseEntity.ok(listaService.getLista(idLista));
     }
 

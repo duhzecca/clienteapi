@@ -1,4 +1,4 @@
-package com.clienteapi.config;
+package com.clienteapi.security;
 
 import lombok.Data;
 

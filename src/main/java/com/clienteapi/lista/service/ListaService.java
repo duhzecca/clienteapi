@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.Optional;
+import java.util.concurrent.ExecutionException;
 
 @Service
 @Slf4j
@@ -27,33 +28,35 @@ public class ListaService {
     private final ListaProductRepository listaProductRepository;
     private final ListaMapper listaMapper;
 
-    public ListaDTO getLista(Integer idLista) throws BadRequestException {
-        final Lista lista = hasList(idLista);
+    public ListaDTO getLista(Integer idLista) throws BadRequestException, ExecutionException, InterruptedException {
+        final var lista = hasList(idLista);
         final var listaProductList = listaProductRepository.findByList(lista.getId());
         var listaDTO = listaMapper.toListaDTO(lista);
         var productDTOList = new ArrayList<ProdutoDTO>();
         for (ListaProduct listaProduct : listaProductList) {
-            final var productById = productApiClient.getProductById(listaProduct.getKey().getProduct());
-            productDTOList.add(productById);
+            final var productById = productApiClient.getProductByIdAsync(listaProduct.getKey().getProduct());
+            productDTOList.add(productById.get());
         }
         listaDTO.setProdutoDTOList(productDTOList);
         return listaDTO;
     }
 
     public void addProduct(Integer idLista, String idProduto) throws BadRequestException {
-        final Lista lista = hasList(idLista);
+        final var lista = hasList(idLista);
         final var productById = productApiClient.getProductById(idProduto);
         final var listaProduct = new ListaProduct();
         listaProduct.setKey(new ListaProductKey(lista, productById.getId()));
         listaProductRepository.save(listaProduct);
+        log.info("Produto {} adicionado na lista {}", idProduto, idLista);
     }
 
     public void removeProduct(Integer idLista, String idProduto) throws BadRequestException {
-        final Lista lista = hasList(idLista);
+        final var lista = hasList(idLista);
         final var productById = productApiClient.getProductById(idProduto);
         final var listaProduct = new ListaProduct();
         listaProduct.setKey(new ListaProductKey(lista, productById.getId()));
         listaProductRepository.delete(listaProduct);
+        log.info("Produto {} removido da lista {}", idProduto, idLista);
     }
 
     private Lista hasList(Integer idLista) throws BadRequestException {
