@@ -15,7 +15,7 @@ import java.util.concurrent.CompletableFuture;
 @Slf4j
 public class ProductApiClient {
 
-    private final String URL_API_PRODUCT ="https://challenge-api.luizalabs.com/api/product";
+    private static final String URL_API_PRODUCT ="https://challenge-api.luizalabs.com/api/product";
 
     private final RestTemplate restTemplate;
 
